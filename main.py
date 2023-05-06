@@ -16,11 +16,10 @@ def get_img(uploaded_img):
 @st.cache_data
 def kmeans_clustering(k, img):
 
-    if(len(img.shape) < 3):
-        z = img.reshape((-1,1))
-    elif(len(img.shape)== 3):
-        z = img.reshape((-1,3))
-
+    # if(len(img.shape) < 3):
+    #     z = img.reshape((-1,1))
+    # elif(len(img.shape)== 3):
+    z = img.reshape((-1,3))
     K = k
     attempts = 10
     z = np.float32(z)
@@ -68,18 +67,22 @@ def main():
     st.title("Image Compression and Vectorization App")
     st.write("Upload an image and choose the number of colors to reduce it to using KMeans clustering:")
     
-    uploaded_img = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"], on_change= st.session_state['init'] = True)
+    uploaded_img = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
     k_limit = 56
-    if st.session_state['init']:
-        st.session_state['init'] = 'false'
-        if uploaded_img is not None:
-            for i in range(k_limit)
-            original_image = get_img(uploaded_img)
-            compressed_image = kmeans_clustering(k, original_image)
+    
         
 
     col1,col2 = st.columns(2)
     if uploaded_img is not None:
+        
+        # st.write("yhjhhj")
+        # progress_bar = st.progress(0)
+        # for i in range(k_limit):
+        #     og_image = get_img(uploaded_img)
+        #     c_image = kmeans_clustering(i, og_image)
+        #     progress_bar.progress(int((i+1)/k_limit*100))
+            
+
         original_image = get_img(uploaded_img)
         with col1:
             st.image(original_image, caption="Original Image")
