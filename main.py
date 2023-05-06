@@ -46,7 +46,7 @@ def vector_img(compressed_image):
 def main():
     st.set_page_config(page_title="Image Compression and Vectorization App")
 
-    st.title("Image Vectorization App")
+    st.title("Image Compression and Vectorization App")
     st.write("Upload an image and choose the number of colors to reduce it to using KMeans clustering:")
 
     uploaded_img = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
@@ -62,16 +62,23 @@ def main():
         if st.button("Compress Img"):
             with col2:
                 st.image(compressed_image, caption=f"Compressed Image (K={k})")
-                if st.button("vectorize Img"):
-                    with col3:
-                        data = vector_img(compressed_image)
-                        st.image(data, caption=f"Vectorized Image (K={k})")
-                        st.download_button(
-                            label="Download image",
-                            data=data,
-                            file_name="vectorized.svg",
-                            mime="image/svg+xml"
-                        )
+                st.download_button(
+                    label="Download compressed image",
+                    data=compressed_image,
+                    file_name="compressed.png",
+                    mime="image/png"
+                )
+                # if st.button("vectorize Img"):
+                    # with col3:
+                
+                data = vector_img(compressed_image)
+                st.image(data, caption=f"Vectorized Image (K={k})")
+                st.download_button(
+                    label="Download image",
+                    data=data,
+                    file_name="vectorized.svg",
+                    mime="image/svg+xml"
+                )
 
 
 if __name__ == "__main__":
