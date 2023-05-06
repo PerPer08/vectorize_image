@@ -1,2 +1,3 @@
 # vectorize_image
-this repo contains a website that will vectorize an image using kmeans
+this repo contains a website that will compress an image using kmeans and vectorize that image
+
