@@ -143,7 +143,7 @@ def main():
                 if st.button("vectorize img"):
                     st.download_button(
                         label="Download vectorized image",
-                        data=vector_img(st.session_state['comp_img']),
+                        data=vectorize_img(st.session_state['comp_img']),
                         file_name="vectorized.svg",
                         mime="image/svg+xml"
                     )
