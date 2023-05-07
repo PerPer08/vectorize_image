@@ -49,7 +49,6 @@ def dl_png(compressed_image):
 def vector_img(compressed_image):
     # Convert compressed image to vector image
     
-   
     h, w, _ = compressed_image.shape
     dwg = svgwrite.Drawing('vectorized.svg', size=(w, h))
     for row in range(h):
