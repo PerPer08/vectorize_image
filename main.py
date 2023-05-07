@@ -1,7 +1,7 @@
 import streamlit as st
 import numpy as np
 import cv2
-#import svgwrite
+import svgwrite
 
 
 @st.cache_data
@@ -15,7 +15,6 @@ def get_img(uploaded_img):
 
 @st.cache_data
 def kmeans_clustering(k, img):
-
     # if(len(img.shape) < 3):
     #     z = img.reshape((-1,1))
     # elif(len(img.shape)== 3):
@@ -26,35 +25,59 @@ def kmeans_clustering(k, img):
 
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
 
-    
     ret, label, center = cv2.kmeans(z, K, None, criteria, attempts, cv2.KMEANS_PP_CENTERS)
     center = np.uint8(center)
+    print(center)
     res = center[label.flatten()]
+    print(res)
     result_image = res.reshape((img.shape))
-    print(ret)
+
     return result_image
 
+def dl_png(compressed_image):
+    # Convert the compressed image back to uint8 format
+    compressed_image = compressed_image.astype(np.uint8)
+    compressed_image = cv2.cvtColor(compressed_image, cv2.COLOR_BGR2RGB)
+    # Convert the compressed image to PNG format
+    _, compressed_png = cv2.imencode(".png", compressed_image)
+    # Get the binary data of the compressed image
+    dl_img = compressed_png.tobytes()
 
-# @st.cache_data
-# def vector_img(compressed_image):
-#     # Convert compressed image to vector image
-#     h, w, _ = compressed_image.shape
-#     dwg = svgwrite.Drawing('vectorized.svg', size=(w, h))
-#     for row in range(h):
-#         for col in range(w):
-#             r, g, b = compressed_image[row, col]
-#             hex_color = f'#{r:02x}{g:02x}{b:02x}'
-#             dwg.add(dwg.rect((col, row), (1, 1), fill=hex_color))
-#     # Output vector image as a file download
-#     with open('vectorized.svg', 'rb') as f:
-#         data = f.read()
+    return dl_img
 
-#     return data
+@st.cache_data
+def vector_img(compressed_image):
+    # Convert compressed image to vector image
+    
+    prg = st.progress(0)
+    h, w, _ = compressed_image.shape
+    dwg = svgwrite.Drawing('vectorized.svg', size=(w, h))
+    for row in range(h):
+        for col in range(w):
+            r, g, b = compressed_image[row, col]
+            hex_color = f'#{r:02x}{g:02x}{b:02x}'
+            dwg.add(dwg.rect((col, row), (1, 1), fill=hex_color))
+        prg.progress((row/h)*100)
+    # Output vector image as a file download
+    with open('vectorized.svg', 'rb') as f:
+        data = f.read()
+
+    return data
+
+
+def compress():
+    st.session_state['compress'] = False
+    
+    return
+
 
 if 'init' not in st.session_state:
     st.session_state['init'] = True
-if 'upload' not in st.session_state:
-    st.session_state['upload'] = "not done"
+if 'comp_img' not in st.session_state:
+    st.session_state['comp_img'] 
+
+if 'compress' not in st.session_state:
+    st.session_state['compress'] = False
 
 
 
@@ -62,64 +85,66 @@ if 'upload' not in st.session_state:
 
 
 def main():
-    st.set_page_config(page_title="Image Compression and Vectorization App")
+    st.set_page_config(page_title="Img ComVec")
 
-    st.title("Image Compression and Vectorization App")
-    st.write("Upload an image and choose the number of colors to reduce it to using KMeans clustering:")
+    st.markdown("<h3 style='text-align: center; color: White;'>Compress and Vectorize Img</h3>", unsafe_allow_html=True)
+
+
+    with st.sidebar:
+        st.write("Upload an image and choose the number of colors to reduce it to using KMeans clustering:")
     
-    uploaded_img = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
-    k_limit = 56
-    
+        uploaded_img = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"] )
+        k_limit = 56
+        k = st.slider("Number of colors:", 1, k_limit)
+
+
+        if st.button("Compress Img"):
+            st.session_state['compress'] = True
+
         
 
     col1,col2 = st.columns(2)
     if uploaded_img is not None:
         
-        # st.write("yhjhhj")
-        # progress_bar = st.progress(0)
-        # for i in range(k_limit):
-        #     og_image = get_img(uploaded_img)
-        #     c_image = kmeans_clustering(i, og_image)
-        #     progress_bar.progress(int((i+1)/k_limit*100))
-            
-
         original_image = get_img(uploaded_img)
         with col1:
             st.image(original_image, caption="Original Image")
 
-            k = st.slider("Number of colors:", 1, k_limit)
+            
         
-        if st.button("Compress Img"):
+
+        if st.session_state['compress'] == True:
+            
+           
             compressed_image = kmeans_clustering(k, original_image)
-            with col2:
-                st.image(compressed_image, caption=f"Compressed Image (K={k})")
-                # Convert the compressed image back to uint8 format
-                compressed_image = compressed_image.astype(np.uint8)
-                compressed_image = cv2.cvtColor(compressed_image, cv2.COLOR_BGR2RGB)
 
-                # Convert the compressed image to PNG format
-                _, compressed_png = cv2.imencode(".png", compressed_image)
+            st.session_state['comp_img'] = compressed_image
+            st.session_state['display'] = True
+            st.session_state['compress'] = False
 
-                # Get the binary data of the compressed image
-                dl_img = compressed_png.tobytes()
+
+        with col2:
+            if st.session_state['display'] == False:
+                st.markdown("<h3 style='text-align: center; color: White;'>Result Img</h3>", unsafe_allow_html=True)
                 
+        with col2:
+            
+            st.image(st.session_state['comp_img'], caption=f"Compressed Image (K={k})")
+            
+            st.download_button(
+                label="Download compressed image",
+                data = dl_png(st.session_state['comp_img']),
+                file_name="compressed.png",
+                mime="image/png"
+            )
+
+            if st.button("vectorize img"):
                 st.download_button(
-                    label="Download compressed image",
-                    data=dl_img,
-                    file_name="compressed.png",
-                    mime="image/png"
+                    label="Download vectorized image",
+                    data=vector_img(st.session_state['comp_img']),
+                    file_name="vectorized.svg",
+                    mime="image/svg+xml"
                 )
-                # # if st.button("vectorize Img"):
-                #     # with col3:
-                
-                # data = vector_img(compressed_image)
-                # st.image(data, caption=f"Vectorized Image (K={k})")
-                # st.download_button(
-                #     label="Download image",
-                #     data=data,
-                #     file_name="vectorized.svg",
-                #     mime="image/svg+xml"
-                # )
 
 
 if __name__ == "__main__":
