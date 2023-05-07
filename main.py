@@ -46,20 +46,19 @@ def dl_png(compressed_image):
     return dl_img
 
 @st.cache_data
-def vector_img(compressed_image):
+def vectorize_img(compressed_image):
     # Convert compressed image to vector image
-    
     h, w, _ = compressed_image.shape
-    dwg = svgwrite.Drawing('vectorized.svg', size=(w, h))
+    img = svgwrite.Drawing(size=(w, h))
     for row in range(h):
         for col in range(w):
             r, g, b = compressed_image[row, col]
             hex_color = f'#{r:02x}{g:02x}{b:02x}'
-            dwg.add(dwg.rect((col, row), (1, 1), fill=hex_color))
+            img.add(img.rect((col, row), (1, 1), fill=hex_color))
     # Output vector image as a file download
-    with open('vectorized.svg', 'rb') as f:
-        data = f.read()
-
+    output = io.BytesIO()
+    img.write(output)
+    data = output.getvalue()
     return data
 
 
