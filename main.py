@@ -49,6 +49,7 @@ def dl_png(compressed_image):
 @st.cache_data
 def vectorize_img(compressed_image):
     # Convert compressed image to vector image
+
     h, w, _ = compressed_image.shape
     img = svgwrite.Drawing(size=(w, h))
     for row in range(h):
@@ -57,9 +58,11 @@ def vectorize_img(compressed_image):
             hex_color = f'#{r:02x}{g:02x}{b:02x}'
             img.add(img.rect((col, row), (1, 1), fill=hex_color))
     # Output vector image as a file download
+    st.image(img)
     output = io.BytesIO()
     img.write(output)
     data = output.getvalue()
+    st.image(data)
     return data
 
 
