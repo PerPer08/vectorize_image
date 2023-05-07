@@ -57,7 +57,7 @@ def vector_img(compressed_image):
             r, g, b = compressed_image[row, col]
             hex_color = f'#{r:02x}{g:02x}{b:02x}'
             dwg.add(dwg.rect((col, row), (1, 1), fill=hex_color))
-        prg.progress((row/h)*100)
+        prg.progress(int((row/h)*100))
     # Output vector image as a file download
     with open('vectorized.svg', 'rb') as f:
         data = f.read()
@@ -73,12 +73,13 @@ def compress():
 
 if 'init' not in st.session_state:
     st.session_state['init'] = True
-if 'comp_img' not in st.session_state:
-    st.session_state['comp_img'] 
+
 
 if 'compress' not in st.session_state:
     st.session_state['compress'] = False
 
+if 'img_up' not in st.session_state:
+    st.session_state['img_up'] = False
 
 
 
@@ -117,34 +118,37 @@ def main():
             
            
             compressed_image = kmeans_clustering(k, original_image)
-
+            
+            
+            if 'comp_img' in st.session_state:
+                st.session_state['comp_img'] = compressed_image
             st.session_state['comp_img'] = compressed_image
-            st.session_state['display'] = True
+            st.session_state['img_up'] = True
             st.session_state['compress'] = False
 
 
-        with col2:
-            if st.session_state['display'] == False:
-                st.markdown("<h3 style='text-align: center; color: White;'>Result Img</h3>", unsafe_allow_html=True)
-                
-        with col2:
-            
-            st.image(st.session_state['comp_img'], caption=f"Compressed Image (K={k})")
-            
-            st.download_button(
-                label="Download compressed image",
-                data = dl_png(st.session_state['comp_img']),
-                file_name="compressed.png",
-                mime="image/png"
-            )
+        
 
-            if st.button("vectorize img"):
+    
+        if st.session_state['img_up']:
+            with col2:
+
+                st.image(st.session_state['comp_img'], caption=f"Compressed Image (K={k})")
+
                 st.download_button(
-                    label="Download vectorized image",
-                    data=vector_img(st.session_state['comp_img']),
-                    file_name="vectorized.svg",
-                    mime="image/svg+xml"
+                    label="Download compressed image",
+                    data = dl_png(st.session_state['comp_img']),
+                    file_name="compressed.png",
+                    mime="image/png"
                 )
+
+                if st.button("vectorize img"):
+                    st.download_button(
+                        label="Download vectorized image",
+                        data=vector_img(st.session_state['comp_img']),
+                        file_name="vectorized.svg",
+                        mime="image/svg+xml"
+                    )
 
 
 if __name__ == "__main__":
