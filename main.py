@@ -49,7 +49,7 @@ def dl_png(compressed_image):
 def vector_img(compressed_image):
     # Convert compressed image to vector image
     
-    prg = st.progress(0)
+   
     h, w, _ = compressed_image.shape
     dwg = svgwrite.Drawing('vectorized.svg', size=(w, h))
     for row in range(h):
@@ -57,7 +57,6 @@ def vector_img(compressed_image):
             r, g, b = compressed_image[row, col]
             hex_color = f'#{r:02x}{g:02x}{b:02x}'
             dwg.add(dwg.rect((col, row), (1, 1), fill=hex_color))
-        prg.progress(int((row/h)*100))
     # Output vector image as a file download
     with open('vectorized.svg', 'rb') as f:
         data = f.read()
