@@ -30,19 +30,18 @@ def kmeans_clustering(k, img):
     center = np.uint8(center)
     print(center)
     res = center[label.flatten()]
-    print(res)
     result_image = res.reshape((img.shape))
 
     return result_image
 
-def dl_png(compressed_image):
+def dl_jpg(compressed_image):
     # Convert the compressed image back to uint8 format
     compressed_image = compressed_image.astype(np.uint8)
     compressed_image = cv2.cvtColor(compressed_image, cv2.COLOR_BGR2RGB)
     # Convert the compressed image to PNG format
-    _, compressed_png = cv2.imencode(".png", compressed_image)
+    _, compressed_jpg = cv2.imencode(".jpg", compressed_image)
     # Get the binary data of the compressed image
-    dl_img = compressed_png.tobytes()
+    dl_img = compressed_jpg.tobytes()
 
     return dl_img
 
@@ -138,9 +137,9 @@ def main():
 
                 st.download_button(
                     label="Download compressed image",
-                    data = dl_png(st.session_state['comp_img']),
-                    file_name="compressed.png",
-                    mime="image/png"
+                    data = dl_jpg(st.session_state['comp_img']),
+                    file_name="compressed.jpg",
+                    mime="image/jpg"
                 )
 
                 if st.button("vectorize img"):
