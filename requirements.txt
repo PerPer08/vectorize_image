@@ -1,3 +1,6 @@
 opencv-python-headless
 svgwrite
 numpy
+IO
+potrace
+PIL
