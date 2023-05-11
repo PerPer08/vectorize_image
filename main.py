@@ -3,7 +3,8 @@ import numpy as np
 import cv2
 import svgwrite
 import io
-
+from potrace import Bitmap, Path
+from PIL import Image
 
 @st.cache_data
 def get_img(uploaded_img):
@@ -31,7 +32,7 @@ def kmeans_clustering(k, img):
     print(center)
     res = center[label.flatten()]
     result_image = res.reshape((img.shape))
-
+    print(result_image)
     return result_image
 
 def dl_jpg(compressed_image):
@@ -46,23 +47,29 @@ def dl_jpg(compressed_image):
     return dl_img
 
 @st.cache_data
-def vectorize_img(compressed_image):
-    # Convert compressed image to vector image
+def vectorize_img(ndarray):
+    # Convert ndarray to grayscale
+    gray = cv2.cvtColor(ndarray, cv2.COLOR_RGB2GRAY)
 
-    h, w, _ = compressed_image.shape
-    img = svgwrite.Drawing(size=(w, h))
-    for row in range(h):
-        for col in range(w):
-            r, g, b = compressed_image[row, col]
-            hex_color = f'#{r:02x}{g:02x}{b:02x}'
-            img.add(img.rect((col, row), (1, 1), fill=hex_color))
-    # Output vector image as a file download
-    st.image(img)
-    output = io.BytesIO()
-    img.write(output)
-    data = output.getvalue()
-    st.image(data)
-    return data
+    # Create a bitmap object from the grayscale image
+    bmp = Bitmap(gray.tolist())
+
+    # Trace the bitmap to get a path object
+    path = bmp.trace()
+
+    # Create an SVG object and add the path
+    dwg = svgwrite.Drawing('vectorized.svg', profile='tiny')
+    path_data = Path(dwg).from_potrace(path).d()
+    dwg.add(dwg.path(d=path_data, fill='none', stroke='black'))
+
+    # Save the SVG file and return the binary data
+    buffer = io.BytesIO()
+    dwg.write(buffer)
+    buffer.seek(0)
+    svg_data = buffer.getvalue()
+    return svg_data
+
+
 
 
 def compress():
@@ -145,7 +152,7 @@ def main():
                 if st.button("vectorize img"):
                     st.download_button(
                         label="Download vectorized image",
-                        data=vectorize_img(dl_jpg(st.session_state['comp_img'])),
+                        data=vectorize_img(st.session_state['comp_img']),
                         file_name="vectorized.svg",
                         mime="image/svg+xml"
                     )
