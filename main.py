@@ -95,7 +95,7 @@ if 'img_up' not in st.session_state:
 def main():
     st.set_page_config(page_title="Img ComVec")
 
-    st.markdown("<h3 style='text-align: center; color: White;'>Compress and Vectorize Img</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align: center; color: White;'>Compress image using kmeans</h3>", unsafe_allow_html=True)
 
 
     with st.sidebar:
