@@ -1,10 +1,10 @@
 import streamlit as st
 import numpy as np
 import cv2
-import svgwrite
-import io
-from potrace import Bitmap, Path
-from PIL import Image
+# import svgwrite
+# import io
+# from potrace import Bitmap, Path
+# from PIL import Image
 
 @st.cache_data
 def get_img(uploaded_img):
@@ -46,28 +46,28 @@ def dl_jpg(compressed_image):
 
     return dl_img
 
-@st.cache_data
-def vectorize_img(ndarray):
-    # Convert ndarray to grayscale
-    gray = cv2.cvtColor(ndarray, cv2.COLOR_RGB2GRAY)
+# @st.cache_data
+# def vectorize_img(ndarray):
+#     # Convert ndarray to grayscale
+#     gray = cv2.cvtColor(ndarray, cv2.COLOR_RGB2GRAY)
 
-    # Create a bitmap object from the grayscale image
-    bmp = Bitmap(gray.tolist())
+#     # Create a bitmap object from the grayscale image
+#     bmp = Bitmap(gray.tolist())
 
-    # Trace the bitmap to get a path object
-    path = bmp.trace()
+#     # Trace the bitmap to get a path object
+#     path = bmp.trace()
 
-    # Create an SVG object and add the path
-    dwg = svgwrite.Drawing('vectorized.svg', profile='tiny')
-    path_data = Path(dwg).from_potrace(path).d()
-    dwg.add(dwg.path(d=path_data, fill='none', stroke='black'))
+#     # Create an SVG object and add the path
+#     dwg = svgwrite.Drawing('vectorized.svg', profile='tiny')
+#     path_data = Path(dwg).from_potrace(path).d()
+#     dwg.add(dwg.path(d=path_data, fill='none', stroke='black'))
 
-    # Save the SVG file and return the binary data
-    buffer = io.BytesIO()
-    dwg.write(buffer)
-    buffer.seek(0)
-    svg_data = buffer.getvalue()
-    return svg_data
+#     # Save the SVG file and return the binary data
+#     buffer = io.BytesIO()
+#     dwg.write(buffer)
+#     buffer.seek(0)
+#     svg_data = buffer.getvalue()
+#     return svg_data
 
 
 
@@ -149,13 +149,13 @@ def main():
                     mime="image/jpg"
                 )
 
-                if st.button("vectorize img"):
-                    st.download_button(
-                        label="Download vectorized image",
-                        data=vectorize_img(st.session_state['comp_img']),
-                        file_name="vectorized.svg",
-                        mime="image/svg+xml"
-                    )
+                # if st.button("vectorize img"):
+                #     st.download_button(
+                #         label="Download vectorized image",
+                #         data=vectorize_img(st.session_state['comp_img']),
+                #         file_name="vectorized.svg",
+                #         mime="image/svg+xml"
+                #     )
 
 
 if __name__ == "__main__":
